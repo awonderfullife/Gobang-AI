@@ -1,0 +1,4 @@
+﻿  GobangAI.cpp
+e:\github\gobang_ai\gobang_ai\gobangai.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  Gobang_AI.vcxproj -> E:\GitHub\Gobang_AI\Debug\Gobang_AI.exe
+  Gobang_AI.vcxproj -> E:\GitHub\Gobang_AI\Debug\Gobang_AI.pdb (Partial PDB)

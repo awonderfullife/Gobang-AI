@@ -13,6 +13,3 @@
 
 
 // TODO: 在此处引用程序需要的其他头文件
-#include"board.h"
-#include"judje.h"
-#include"player.h"

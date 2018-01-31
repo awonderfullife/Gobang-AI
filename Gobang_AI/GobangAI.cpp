@@ -5,13 +5,41 @@
 #include<vector>
 #include<tuple>
 #include<iostream>
+#include<string>
+#include<unordered_map>
+#include<algorithm>
 
 const int boardSize = 10;
 std::vector<std::vector<int> > board;
+std::unordered_map<std::string, int> ump;
+
+std::tuple<int, int> playStoneHuman(int kinds);
+std::tuple<int, int> playStoneRoboat(int kinds);
+int evaluate(int x, int y, int kinds);
+
+
+
+
 
 void init() {
 	for (int i = 0; i < boardSize; ++i)
 		board.push_back(std::vector<int>(boardSize, 0));
+	ump["ooooo"] = 50000;
+	ump["+oooo+"] = 4320;
+	ump["+ooo++"] = 720;
+	ump["++ooo+"] = 720;
+	ump["+oo+o+"] = 720;
+	ump["+o+oo+"] = 720;
+	ump["oooo+"] = 720;
+	ump["+oooo"] = 720;
+	ump["oo+oo"] = 720;
+	ump["o+ooo"] = 720;
+	ump["ooo+o"] = 720;
+	ump["++oo++"] = 120;
+	ump["++o+o+"] = 120;
+	ump["+o+o++"] = 120;
+	ump["+++o++"] = 20;
+	ump["++o+++"] = 20;
 }
 
 void showBoard() {
@@ -29,16 +57,8 @@ void showBoard() {
 	}
 	std::cout << " : \t";
 	for (int i = 0; i < boardSize; ++i)
-		std::cout << static_cast<char>('A'+i) << " ";
+		std::cout << static_cast<char>('A' + i) << " ";
 	std::cout << std::endl;
-}
-
-std::tuple<int, int> playStoneHuman(int kinds) {
-	int x, y;
-	if (kinds == 1) std::cout << "Black: ";
-	if (kinds == -1) std::cout << "White: ";
-	std::cin >> x >> y;
-	return std::make_tuple(x, y);
 }
 
 
@@ -51,7 +71,7 @@ int placeStone(int x, int y, int kinds) {
 bool judgeResult(int x, int y, int kinds) {
 	// row
 	int count = 0, lx = x - 1, rx = x + 1;
-	while (lx >= 0 && board[lx][y] == kinds) { --lx; ++count;}
+	while (lx >= 0 && board[lx][y] == kinds) { --lx; ++count; }
 	while (rx < boardSize && board[rx][y] == kinds) { ++rx; ++count; }
 	if (count >= 4) return true;
 
@@ -65,15 +85,15 @@ bool judgeResult(int x, int y, int kinds) {
 	// right-up / left-down
 	count = 0;
 	int rux = x + 1, ruy = y - 1, ldx = x - 1, ldy = y + 1;
-	while (rux < boardSize && ruy >= 0 && board[rux][ruy] == kinds) { ++rux; --ruy; ++count;}
-	while (ldx >= 0 && ldy < boardSize && board[ldx][ldy] == kinds) { --ldx; ++ldy; ++count;}
+	while (rux < boardSize && ruy >= 0 && board[rux][ruy] == kinds) { ++rux; --ruy; ++count; }
+	while (ldx >= 0 && ldy < boardSize && board[ldx][ldy] == kinds) { --ldx; ++ldy; ++count; }
 	if (count >= 4) return true;
 
 	// left-up / right-down
 	count = 0;
 	int lux = x - 1, luy = y - 1, rdx = x + 1, rdy = y + 1;
-	while (lux >= 0 && luy >= 0 && board[lux][luy] == kinds) { --lux; --luy; ++count;}
-	while (rdx < boardSize && rdy < boardSize && board[rdx][rdy] == kinds) { ++rdx; ++rdy; ++count;}
+	while (lux >= 0 && luy >= 0 && board[lux][luy] == kinds) { --lux; --luy; ++count; }
+	while (rdx < boardSize && rdy < boardSize && board[rdx][rdy] == kinds) { ++rdx; ++rdy; ++count; }
 	if (count >= 4) return true;
 
 	return false;
@@ -116,6 +136,123 @@ int main()
 {
 	holdGame();
 	system("pause");
-    return 0;
+	return 0;
 }
 
+// KMP algorithm for pattern match, return first index;
+int strStr(std::string haystack, std::string needle) {
+	int nsize = needle.size();
+	int hsize = haystack.size();
+	if (nsize == 0) return 0;
+	int *table = new int[nsize];
+	memset(table, 0, sizeof(int)*nsize);
+	//building match table
+	for (int i = 1, j = 0; i < nsize - 1;) {
+		if (needle[i] != needle[j]) {
+			if (j>0) {
+				j = table[j - 1];
+			}
+			else {
+				i++;
+			}
+		}
+		else {
+			table[i] = j + 1;
+			i++;
+			j++;
+		}
+	}
+	//matching
+	for (int i = 0, match_pos = 0; i < hsize;) {
+		if (haystack[i] == needle[match_pos]) {
+			if (match_pos == nsize - 1) {
+				return i - (nsize - 1);
+			}
+			else {
+				i++;
+				match_pos++;
+			}
+		}
+		else {
+			if (match_pos == 0) {
+				i++;
+			}
+			else {
+				match_pos = table[match_pos - 1];
+			}
+		}
+	}
+	delete[]table;
+	return -1;
+}
+
+int evaluate(int x, int y, int kinds) {
+	std::string rows, cols, lus, rus;
+	// rows
+	int lx = x - 4 >= 0 ? 0 : x - 4;
+	int rx = x + 4 < boardSize ? boardSize - 1 : x + 4;
+	for (int i = lx; i <= rx; ++i) {
+		if (board[i][y] == 0) rows += "+";
+		else if (board[i][y] == kinds) rows += "o";
+		else rows += "A";
+	}
+
+	// cols
+	int uy = y - 4 >= 0 ? 0 : y - 4;
+	int dy = y + 4 < boardSize ? boardSize - 1 : y + 4;
+	for (int j = uy; j <= dy; ++j) {
+		if (board[x][j] == 0) cols += "+";
+		else if (board[x][j] == kinds) cols += "o";
+		else cols += "A";
+	}
+
+	// lus
+	int lux = x - 4 >= 0 ? 0 : x - 4;
+	int rdx = x + 4 < boardSize ? boardSize - 1 : x + 4;
+	int luy = y - 4 >= 0 ? 0 : y - 4;
+	int rdy = y + 4 < boardSize ? boardSize - 1 : y + 4;
+	int lowabs = std::min(x - lux, y - luy);
+	int highabs = std::min(rdx - x, rdy - y);
+	for (int i = x-lowabs, j = y-lowabs; i <= x+highabs && j <= y+highabs; ++i, ++j) {
+		if (board[i][j] == 0) lus += "+";
+		else if (board[i][j] == kinds) lus += "o";
+		else lus += "A";
+	}
+
+	// rus
+	int ldx = x - 4 >= 0 ? 0 : x - 4;
+	int ldy = y + 4 < boardSize ? boardSize - 1 : y + 4;
+	int rux = x + 4 < boardSize ? boardSize - 1 : x + 4;
+	int ruy = y - 4 >= 0 ? 0 : y - 4;
+	int lowabs = std::min(x - ldx, ldy - y);
+	int highabs = std::min(rux - x, y - ruy);
+	for (int i = x - lowabs, j = y + lowabs; i <= x + highabs && j >= y - highabs; ++i, --j) {
+		if (board[i][j] == 0) rus += "+";
+		else if (board[i][j] == kinds) rus += "o";
+		else rus += "A";
+	}
+
+	int score, score1 = 0, score2 = 0, score3 = 0, score4 = 0;
+	for (auto it = ump.cbegin(); it != ump.cend(); ++it) {
+		if (strStr(it->first, rows) != -1) score1 = std::max(score1, it->second);
+		if (strStr(it->first, cols) != -1) score2 = std::max(score2, it->second);
+		if (strStr(it->first, lus) != -1) score3 = std::max(score3, it->second);
+		if (strStr(it->first, rus) != -1) score4 = std::max(score4, it->second);
+	}
+
+	score = score1 + score2 + score3 + score4;
+	
+	return score;
+}
+
+std::tuple<int, int> playStoneRoboat(int kinds) {
+	
+}
+
+std::tuple<int, int> playStoneHuman(int kinds) {
+	int x, y;
+	if (kinds == 1) std::cout << "Black: ";
+	if (kinds == -1) std::cout << "White: ";
+	std::cin >> x >> y;
+	return std::make_tuple(x, y);
+}

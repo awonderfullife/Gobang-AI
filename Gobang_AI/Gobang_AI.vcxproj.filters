@@ -24,13 +24,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="board.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="judje.h">
+    <ClInclude Include="kmp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

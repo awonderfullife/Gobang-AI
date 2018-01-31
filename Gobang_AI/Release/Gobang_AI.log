@@ -1,9 +1,26 @@
 ﻿  GobangAI.cpp
 GobangAI.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  正在生成代码
-  1 of 148 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
-  已完成代码的生成
-  Gobang_AI.vcxproj -> E:\GitHub\Gobang_AI\Release\Gobang_AI.exe
-  Gobang_AI.vcxproj -> E:\GitHub\Gobang_AI\Release\Gobang_AI.pdb (Full PDB)
+GobangAI.cpp(12): error C2065: “string”: 未声明的标识符
+GobangAI.cpp(12): error C2146: 语法错误: 缺少“)”(在标识符“pattern”的前面)
+GobangAI.cpp(12): error C2143: 语法错误: 缺少“;”(在“{”的前面)
+GobangAI.cpp(12): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+GobangAI.cpp(29): error C2065: “string”: 未声明的标识符
+GobangAI.cpp(29): error C2146: 语法错误: 缺少“)”(在标识符“target”的前面)
+GobangAI.cpp(29): error C2143: 语法错误: 缺少“;”(在“{”的前面)
+GobangAI.cpp(29): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+GobangAI.cpp(52): error C2065: “string”: 未声明的标识符
+GobangAI.cpp(52): error C2146: 语法错误: 缺少“)”(在标识符“target”的前面)
+GobangAI.cpp(52): error C2143: 语法错误: 缺少“;”(在“{”的前面)
+GobangAI.cpp(52): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+GobangAI.cpp(63): error C2065: “string”: 未声明的标识符
+GobangAI.cpp(63): error C2146: 语法错误: 缺少“;”(在标识符“target”的前面)
+GobangAI.cpp(63): error C2065: “target”: 未声明的标识符
+GobangAI.cpp(64): error C2065: “string”: 未声明的标识符
+GobangAI.cpp(64): error C2146: 语法错误: 缺少“;”(在标识符“pattern”的前面)
+GobangAI.cpp(64): error C2065: “pattern”: 未声明的标识符
+GobangAI.cpp(65): error C2065: “target”: 未声明的标识符
+GobangAI.cpp(65): error C2065: “pattern”: 未声明的标识符
+GobangAI.cpp(65): error C3861: “kmpMatch”: 找不到标识符
+GobangAI.cpp(66): error C2065: “target”: 未声明的标识符
+GobangAI.cpp(66): error C2065: “pattern”: 未声明的标识符
+GobangAI.cpp(66): error C3861: “print”: 找不到标识符

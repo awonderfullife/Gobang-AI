@@ -9,7 +9,7 @@
 #include<unordered_map>
 #include<algorithm>
 
-const int boardSize = 10;
+const int boardSize = 11;
 std::vector<std::vector<int> > board;
 std::unordered_map<std::string, int> ump;
 
@@ -113,10 +113,12 @@ void holdGame() {
 			tp = playStoneHuman(1);
 		}
 		showBoard();
+
 		if (judgeResult(std::get<0>(tp), std::get<1>(tp), 1)) {
 			std::cout << "Black Wins !!!!!\n";
 			break;
 		}
+
 
 		tp = playStoneHuman(-1);
 		while (placeStone(std::get<0>(tp), std::get<1>(tp), -1)) {
@@ -124,10 +126,12 @@ void holdGame() {
 			tp = playStoneHuman(-1);
 		}
 		showBoard();
+
 		if (judgeResult(std::get<0>(tp), std::get<1>(tp), -1)) {
 			std::cout << "White Wins !!!!!\n";
 			break;
 		}
+
 	}
 }
 
@@ -188,18 +192,23 @@ int strStr(std::string haystack, std::string needle) {
 
 int evaluate(int x, int y, int kinds) {
 	std::string rows, cols, lus, rus;
+
+	if (board[x][y] != 0) return 0;
+
+	board[x][y] = kinds;
 	// rows
-	int lx = x - 4 >= 0 ? 0 : x - 4;
-	int rx = x + 4 < boardSize ? boardSize - 1 : x + 4;
+	int lx = x - 4 < 0 ? 0 : x - 4;
+	int rx = x + 4 >= boardSize ? boardSize - 1 : x + 4;
 	for (int i = lx; i <= rx; ++i) {
-		if (board[i][y] == 0) rows += "+";
-		else if (board[i][y] == kinds) rows += "o";
+		if (board[i][y] == 0) rows = rows + "+";
+		else if (board[i][y] == kinds) rows = rows + "o";
 		else rows += "A";
 	}
 
+
 	// cols
-	int uy = y - 4 >= 0 ? 0 : y - 4;
-	int dy = y + 4 < boardSize ? boardSize - 1 : y + 4;
+	int uy = y - 4 < 0 ? 0 : y - 4;
+	int dy = y + 4 >= boardSize ? boardSize - 1 : y + 4;
 	for (int j = uy; j <= dy; ++j) {
 		if (board[x][j] == 0) cols += "+";
 		else if (board[x][j] == kinds) cols += "o";
@@ -207,10 +216,10 @@ int evaluate(int x, int y, int kinds) {
 	}
 
 	// lus
-	int lux = x - 4 >= 0 ? 0 : x - 4;
-	int rdx = x + 4 < boardSize ? boardSize - 1 : x + 4;
-	int luy = y - 4 >= 0 ? 0 : y - 4;
-	int rdy = y + 4 < boardSize ? boardSize - 1 : y + 4;
+	int lux = x - 4 < 0 ? 0 : x - 4;
+	int rdx = x + 4 >= boardSize ? boardSize - 1 : x + 4;
+	int luy = y - 4 < 0 ? 0 : y - 4;
+	int rdy = y + 4 >= boardSize ? boardSize - 1 : y + 4;
 	int lowabs = std::min(x - lux, y - luy);
 	int highabs = std::min(rdx - x, rdy - y);
 	for (int i = x-lowabs, j = y-lowabs; i <= x+highabs && j <= y+highabs; ++i, ++j) {
@@ -220,28 +229,30 @@ int evaluate(int x, int y, int kinds) {
 	}
 
 	// rus
-	int ldx = x - 4 >= 0 ? 0 : x - 4;
-	int ldy = y + 4 < boardSize ? boardSize - 1 : y + 4;
-	int rux = x + 4 < boardSize ? boardSize - 1 : x + 4;
-	int ruy = y - 4 >= 0 ? 0 : y - 4;
-	int lowabs = std::min(x - ldx, ldy - y);
-	int highabs = std::min(rux - x, y - ruy);
+	int ldx = x - 4 < 0 ? 0 : x - 4;
+	int ldy = y + 4 >= boardSize ? boardSize - 1 : y + 4;
+	int rux = x + 4 >= boardSize ? boardSize - 1 : x + 4;
+	int ruy = y - 4 < 0 ? 0 : y - 4;
+	lowabs = std::min(x - ldx, ldy - y);
+	highabs = std::min(rux - x, y - ruy);
 	for (int i = x - lowabs, j = y + lowabs; i <= x + highabs && j >= y - highabs; ++i, --j) {
 		if (board[i][j] == 0) rus += "+";
 		else if (board[i][j] == kinds) rus += "o";
 		else rus += "A";
 	}
 
+
 	int score, score1 = 0, score2 = 0, score3 = 0, score4 = 0;
 	for (auto it = ump.cbegin(); it != ump.cend(); ++it) {
-		if (strStr(it->first, rows) != -1) score1 = std::max(score1, it->second);
-		if (strStr(it->first, cols) != -1) score2 = std::max(score2, it->second);
-		if (strStr(it->first, lus) != -1) score3 = std::max(score3, it->second);
-		if (strStr(it->first, rus) != -1) score4 = std::max(score4, it->second);
+		if (strStr(rows, it->first) != -1) score1 = std::max(score1, it->second);
+		if (strStr(cols, it->first) != -1) score2 = std::max(score2, it->second);
+		if (strStr(lus, it->first) != -1) score3 = std::max(score3, it->second);
+		if (strStr(rus, it->first) != -1) score4 = std::max(score4, it->second);
 	}
 
 	score = score1 + score2 + score3 + score4;
 	
+	board[x][y] = 0;
 	return score;
 }
 

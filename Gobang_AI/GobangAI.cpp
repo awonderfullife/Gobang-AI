@@ -17,6 +17,7 @@ std::unordered_map<std::string, int> ump;
 std::tuple<int, int> playStoneHuman(int kinds);
 std::tuple<int, int> playStoneRoboat(int kinds);
 int evaluate(int x, int y, int kinds);
+int evaluateWholeBoard(int kinds);
 
 std::vector<std::vector<int>> directions = { {0,-1}, {-1,-1}, {-1,0},{-1,1}, {0,1}, {1,1}, {1,0}, {1, -1} };
 
@@ -174,6 +175,7 @@ void holdGame() {
 			break;
 		}
 
+		std::cout << "Black score: " << evaluateWholeBoard(1) << " White score: " << evaluateWholeBoard(-1) << std::endl;
 	}
 }
 
@@ -298,8 +300,104 @@ int evaluate(int x, int y, int kinds) {
 	return score;
 }
 
-std::tuple<int, int> playStoneRoboat(int kinds) {
-	
+int evaluateWholeBoard(int kinds) {
+	int finalScore = 0, score=0;
+
+	// rows 
+	for (int i = 0; i < boardSize; ++i) {
+		std::string rows = "";
+		score = 0;
+		for (int j = 0; j < boardSize; ++j) {
+			if (board[i][j] == 0) rows = rows + "+";
+			else if (board[i][j] == kinds) rows = rows + "o";
+			else rows += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(rows, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	// cols
+	for (int j = 0; j < boardSize; ++j) {
+		std::string cols = "";
+		score = 0;
+		for (int i = 0; i < boardSize; ++i) {
+			if (board[i][j] == 0) cols += "+";
+			else if (board[i][j] == kinds) cols += "o";
+			else cols += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(cols, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	// lux rows[0, boardSize-5]  cols[1, boardSize-5]
+	for (int i = 0; i < boardSize - 4; ++i) {
+		std::string lus = "";
+		score = 0;
+		for (int x = i, y = 0; x < boardSize; ++x, ++y) {
+			if (board[x][y] == 0) lus += "+";
+			else if (board[x][y] == kinds) lus += "o";
+			else lus += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(lus, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	for (int j = 1; j < boardSize - 4; ++j) {
+		std::string lus = "";
+		score = 0;
+		for (int x = 0, y = j; y < boardSize; ++x, ++y) {
+			if (board[x][y] == 0) lus += "+";
+			else if (board[x][y] == kinds) lus += "o";
+			else lus += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(lus, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	// rus rows[1, boardSize-5] cols[4, boardSize-1]
+	for (int j = 4; j < boardSize; ++j) {
+		std::string rus = "";
+		score = 0;
+		for (int x = 0, y = j; y >= 0; ++x, --y) {
+			if (board[x][y] == 0) rus += "+";
+			else if (board[x][y] == kinds) rus += "o";
+			else rus += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(rus, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	for (int i = 1; i < boardSize - 4; ++i) {
+		std::string rus = "";
+		score = 0;
+		for (int y = boardSize - 1, x = i; x < boardSize; ++x, --y) {
+			if (board[x][y] == 0) rus += "+";
+			else if (board[x][y] == kinds) rus += "o";
+			else rus += "A";
+		}
+
+		for (auto it = ump.cbegin(); it != ump.cend(); ++it)
+			if (strStr(rus, it->first) != -1) score = std::max(score, it->second);
+
+		finalScore += score;
+	}
+
+	return finalScore;
 }
 
 std::tuple<int, int> playStoneHuman(int kinds) {

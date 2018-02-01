@@ -18,7 +18,7 @@ std::tuple<int, int> playStoneHuman(int kinds);
 std::tuple<int, int> playStoneRoboat(int kinds);
 int evaluate(int x, int y, int kinds);
 int evaluateWholeBoard(int kinds);
-int minMax(int depth, int kinds, int mvKinds);
+int minMaxAlphaBeta(int depth, int kinds, int mvKinds, int a, int b);
 
 std::vector<std::vector<int>> directions = { {0,-1}, {-1,-1}, {-1,0},{-1,1}, {0,1}, {1,1}, {1,0}, {1, -1} };
 
@@ -154,7 +154,7 @@ void holdGame() {
 			for (int j = 0; j < boardSize; ++j) {
 				if (board[i][j] != 0 || !besideStone(i, j)) continue;
 				board[i][j] = -1;
-				temp = minMax(1, -1, 1);
+				temp = minMaxAlphaBeta(3, -1, 1, INT_MIN, INT_MAX);
 				board[i][j] = 0;
 				if (temp >= maxScore) {
 					maxScore = temp;
@@ -402,31 +402,31 @@ int evaluateWholeBoard(int kinds) {
 	return finalScore;
 }
 
-int minMax(int depth, int kinds, int mvKinds) {
+int minMaxAlphaBeta(int depth, int kinds, int mvKinds, int a, int b) {
 	if (depth <= 0) return evaluateWholeBoard(kinds)- evaluateWholeBoard(-kinds);
 	if (mvKinds == kinds) {
-		int a = INT_MIN;
 		for (int i = 0; i < boardSize; ++i) {
 			for (int j = 0; j < boardSize; ++j) {
 				if (board[i][j] != 0 || !besideStone(i, j)) continue;
 				board[i][j] = mvKinds;
-				a = std::max(a, minMax(depth - 1, kinds, -mvKinds));
+				a = std::max(a, minMaxAlphaBeta(depth - 1, kinds, -mvKinds, a, b));
 				board[i][j] = 0;
+				if (b <= a) return a;
 			}
 		}
 		return a;
 	}
 	else {
-		int a = INT_MAX;
 		for (int i = 0; i < boardSize; ++i) {
 			for (int j = 0; j < boardSize; ++j) {
 				if (board[i][j] != 0 || !besideStone(i, j)) continue;
 				board[i][j] = mvKinds;
-				a = std::min(a, minMax(depth - 1, kinds, -mvKinds));
+				b = std::min(b, minMaxAlphaBeta(depth - 1, kinds, -mvKinds, a, b));
 				board[i][j] = 0;
+				if (b <= a) return b;
 			}
 		}
-		return a;
+		return b;
 	}
 }
 

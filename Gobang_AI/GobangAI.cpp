@@ -8,6 +8,7 @@
 #include<string>
 #include<unordered_map>
 #include<algorithm>
+#include<queue>
 
 const int boardSize = 11;
 std::vector<std::vector<int> > board;
@@ -17,9 +18,21 @@ std::tuple<int, int> playStoneHuman(int kinds);
 std::tuple<int, int> playStoneRoboat(int kinds);
 int evaluate(int x, int y, int kinds);
 
+std::vector<std::vector<int>> directions = { {0,-1}, {-1,-1}, {-1,0},{-1,1}, {0,1}, {1,1}, {1,0}, {1, -1} };
 
+struct location {
+	int value;
+	int x;
+	int y;
 
+	location(int n1, int n2, int n3) : value(n1), x(n2), y(n3) {}
 
+	bool operator<(const struct location& other) const
+	{
+		//Your priority logic goes here
+		return value < other.value;
+	}
+};
 
 void init() {
 	for (int i = 0; i < boardSize; ++i)
@@ -99,12 +112,27 @@ bool judgeResult(int x, int y, int kinds) {
 	return false;
 }
 
+bool besideStone(int x, int y) {
+	int nx, ny;
+	bool flag = false;
+	for (auto dir : directions) {
+		nx = x + dir[0];
+		ny = y + dir[1];
+		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardSize && board[nx][ny] != 0) {
+			flag = true;
+		}
+	}
+	return flag;
+}
 
 void holdGame() {
 	std::cout << "The Gobang game start!\n";
 	init();
 	std::tuple<int, int> tp;
 	showBoard();
+	location out(-1, -1, -1); 
+	int temp, maxScore, locx, locy;
+
 	while (true)
 	{
 		tp = playStoneHuman(1);
@@ -112,6 +140,7 @@ void holdGame() {
 			std::cout << "illegal location, please reinput the black stone location!\n";
 			tp = playStoneHuman(1);
 		}
+
 		showBoard();
 
 		if (judgeResult(std::get<0>(tp), std::get<1>(tp), 1)) {
@@ -119,15 +148,28 @@ void holdGame() {
 			break;
 		}
 
+		maxScore = 0;
+		for (int i = 0; i < boardSize; ++i) {
+			for (int j = 0; j < boardSize; ++j) {
+				if (!besideStone(i, j)) continue;
+				temp = evaluate(i, j, -1);
+				if (temp >= maxScore) {
+					maxScore = temp;
+					locx = i;
+					locy = j;
+				}
+			}
+		}
+		board[locx][locy] = -1;
 
-		tp = playStoneHuman(-1);
+		/*tp = playStoneHuman(-1);
 		while (placeStone(std::get<0>(tp), std::get<1>(tp), -1)) {
 			std::cout << "illegal location, please reinput the white stone location!\n";
 			tp = playStoneHuman(-1);
-		}
+		}*/
 		showBoard();
 
-		if (judgeResult(std::get<0>(tp), std::get<1>(tp), -1)) {
+		if (judgeResult(locx, locy, -1)) {  /*judgeResult(std::get<0>(tp), std::get<1>(tp), -1)*/
 			std::cout << "White Wins !!!!!\n";
 			break;
 		}

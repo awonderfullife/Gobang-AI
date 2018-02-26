@@ -15,7 +15,6 @@ std::vector<std::vector<int> > board;
 std::unordered_map<std::string, int> ump;
 
 std::tuple<int, int> playStoneHuman(int kinds);
-std::tuple<int, int> playStoneRoboat(int kinds);
 int evaluate(int x, int y, int kinds);
 int evaluateWholeBoard(int kinds);
 int minMaxAlphaBeta(int depth, int kinds, int mvKinds, int a, int b);
@@ -72,7 +71,7 @@ void showBoard() {
 	}
 	std::cout << " : \t";
 	for (int i = 0; i < boardSize; ++i)
-		std::cout << static_cast<char>('A' + i) << " ";
+		std::cout << static_cast<char>('a' + i) << " ";
 	std::cout << std::endl;
 }
 
@@ -131,53 +130,105 @@ void holdGame() {
 	init();
 	std::tuple<int, int> tp;
 	showBoard();
-	location out(-1, -1, -1); 
+	location out(-1, -1, -1);
 	int temp, maxScore, locx, locy;
+	char color;
+	int level;
+	std::cout << "please select a level(1 to 3): // my computer support max level 2, level 3 is too slow\n";
+	std::cin >> level;
+	if (level < 1 || level > 3) level = 2;
+	std::cout << "please input the color you want (b or w): \n";
+	std::cin >> color;
 
-	while (true)
-	{
-		tp = playStoneHuman(1);
-		while (placeStone(std::get<0>(tp), std::get<1>(tp), 1)) {
-			std::cout << "illegal location, please reinput the black stone location!\n";
+	if (color == 'b' || color == 'B'){ 
+		while (true)
+		{
 			tp = playStoneHuman(1);
-		}
+			while (placeStone(std::get<0>(tp), std::get<1>(tp), 1)) {
+				std::cout << "illegal location, please reinput the black stone location!\n";
+				tp = playStoneHuman(1);
+			}
 
-		showBoard();
+			showBoard();
 
-		if (judgeResult(std::get<0>(tp), std::get<1>(tp), 1)) {
-			std::cout << "Black Wins !!!!!\n";
-			break;
-		}
+			if (judgeResult(std::get<0>(tp), std::get<1>(tp), 1)) {
+				std::cout << "Black Wins !!!!!\n";
+				break;
+			}
 
-		maxScore = INT_MIN;
-		for (int i = 0; i < boardSize; ++i) {
-			for (int j = 0; j < boardSize; ++j) {
-				if (board[i][j] != 0 || !besideStone(i, j)) continue;
-				board[i][j] = -1;
-				temp = minMaxAlphaBeta(3, -1, 1, INT_MIN, INT_MAX);
-				board[i][j] = 0;
-				if (temp >= maxScore) {
-					maxScore = temp;
-					locx = i;
-					locy = j;
+			maxScore = INT_MIN;
+			for (int i = 0; i < boardSize; ++i) {
+				for (int j = 0; j < boardSize; ++j) {
+					if (board[i][j] != 0 || !besideStone(i, j)) continue;
+					board[i][j] = -1;
+					temp = minMaxAlphaBeta(level, -1, 1, INT_MIN, INT_MAX);
+					board[i][j] = 0;
+					if (temp >= maxScore) {
+						maxScore = temp;
+						locx = i;
+						locy = j;
+					}
 				}
 			}
-		}
-		board[locx][locy] = -1;
+			board[locx][locy] = -1;
 
-		/*tp = playStoneHuman(-1);
-		while (placeStone(std::get<0>(tp), std::get<1>(tp), -1)) {
-			std::cout << "illegal location, please reinput the white stone location!\n";
-			tp = playStoneHuman(-1);
-		}*/
+			showBoard();
+
+			if (judgeResult(locx, locy, -1)) {  /*judgeResult(std::get<0>(tp), std::get<1>(tp), -1)*/
+				std::cout << "White Wins !!!!!\n";
+				break;
+			}
+
+			std::cout << "Black score: " << evaluateWholeBoard(1) << " White score: " << evaluateWholeBoard(-1) << std::endl;
+		}
+	}
+	else if (color == 'w' || color == 'W') {
+		board[5][5] = 1;
 		showBoard();
+		while (true)
+		{
+			tp = playStoneHuman(-1);
+			while (placeStone(std::get<0>(tp), std::get<1>(tp), -1)) {
+				std::cout << "illegal location, please reinput the black stone location!\n";
+				tp = playStoneHuman(-1);
+			}
 
-		if (judgeResult(locx, locy, -1)) {  /*judgeResult(std::get<0>(tp), std::get<1>(tp), -1)*/
-			std::cout << "White Wins !!!!!\n";
-			break;
+			showBoard();
+
+			if (judgeResult(std::get<0>(tp), std::get<1>(tp), -1)) {
+				std::cout << "White Wins !!!!!\n";
+				break;
+			}
+
+			maxScore = INT_MIN;
+			for (int i = 0; i < boardSize; ++i) {
+				for (int j = 0; j < boardSize; ++j) {
+					if (board[i][j] != 0 || !besideStone(i, j)) continue;
+					board[i][j] = 1;
+					temp = minMaxAlphaBeta(level, 1, -1, INT_MIN, INT_MAX);
+					board[i][j] = 0;
+					if (temp >= maxScore) {
+						maxScore = temp;
+						locx = i;
+						locy = j;
+					}
+				}
+			}
+			board[locx][locy] = 1;
+
+			showBoard();
+
+			if (judgeResult(locx, locy, 1)) {  /*judgeResult(std::get<0>(tp), std::get<1>(tp), -1)*/
+				std::cout << "Black Wins !!!!!\n";
+				break;
+			}
+
+			std::cout << "Black score: " << evaluateWholeBoard(1) << " White score: " << evaluateWholeBoard(-1) << std::endl;
 		}
-
-		std::cout << "Black score: " << evaluateWholeBoard(1) << " White score: " << evaluateWholeBoard(-1) << std::endl;
+	}
+	else {
+		std::cout << "You Win, I surrender......\n";
+		system("pause");
 	}
 }
 
@@ -431,9 +482,11 @@ int minMaxAlphaBeta(int depth, int kinds, int mvKinds, int a, int b) {
 }
 
 std::tuple<int, int> playStoneHuman(int kinds) {
+	char tmp;
 	int x, y;
 	if (kinds == 1) std::cout << "Black: ";
 	if (kinds == -1) std::cout << "White: ";
-	std::cin >> x >> y;
+	std::cin >> x >> tmp;
+	y = tmp - 'a';
 	return std::make_tuple(x, y);
 }
